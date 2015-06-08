@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+  <head>
+  <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+  <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+		<style>
+		#map {
+		    width:100%;
+		    height:900px;
+		}
+		</style>
+     <title>LeafLet</title>
+  </head>
+  <body>
+  	<div id="map"></div>
+    <script>
+      var twitterPostIds = []
+      var chronLat, chronlg
+      var popup
+    </script>
+
+  	<script>
+    // get actual layer data from the server
+  	function getDataLayer(layer,lat,lng){
+      var count = 0
+      // crate a custom twitter marker
+  			var twitterMarker = L.icon({
+    			iconUrl: 'bilder/twitter.png',
+    			popupAnchor: [18,0]})
+
+          var xmlHttp = null;
+          xmlHttp = new XMLHttpRequest();
+          xmlHttp.open( "POST", 'http://localhost:12345?'+"Layers="+layer+"&SearchType=Radius,"+lat+","+lng, false )
+          xmlHttp.send(null)
+          var geojson = xmlHttp.responseText
+         
+         // if layer was Twiter / weather / events only show selected geojsonfeatures
+         // twitter has its own custom marker
+          var geodata = $.parseJSON(geojson)
+          if(layer == 'Twitter'){
+                  L.geoJson(geodata, {
+                       onEachFeature: function (feature, layer) {
+                          if(twitterPostIds.indexOf(feature.properties.id)>-1){}else{
+                                count ++
+                                twitterPostIds.push(feature.properties.id)
+                                L.marker([feature.geometry.coordinates[1],feature.geometry.coordinates[0]], {icon: twitterMarker}).addTo(map).bindPopup(feature.properties.text);
+                          }
+
+                        }
+                  })
+        } else if(layer == 'Weather'){
+          L.geoJson(geodata, {
+                       onEachFeature: function (feature, layer) {
+                          L.marker([feature.geometry.coordinates[1],feature.geometry.coordinates[0]]).addTo(map).bindPopup(feature.properties.name+"</br>"+ "Temperature: " +feature.properties.temperature+" F");
+                       }
+          })
+
+        }else if(layer == 'Events'){
+                    L.geoJson(geodata, {
+                       onEachFeature: function (feature, layer) {
+                          L.marker([feature.geometry.coordinates[1],feature.geometry.coordinates[0]]).addTo(map).bindPopup(feature.properties.name+"</br>"+ "Adresse: " +feature.properties.address+"</br>" + "Datum: " + feature.properties.date);
+                       }
+          })
+        }else{
+          // if custom layer was requested get all additional content infos and bind them to the popup
+          L.geoJson(geodata, {
+                       onEachFeature: function (feature, layer) {
+                        
+                        var text = JSON.stringify(feature.properties)
+                        var text = text.replace(/,/g,"</br>")
+                        var text = text.replace(/\}/g,"")
+                        var text = text.replace(/\{/g,"")
+
+                          L.marker([feature.geometry.coordinates[1],feature.geometry.coordinates[0]]).addTo(map).bindPopup(text);
+                        }
+            })
+        }
+
+
+
+
+		
+ 		 
+      }
+    </script>
+
+
+
+  	<script>
+    // request all available layers from the server on map click
+      function loadLayers(hdms){
+          var xmlHttp = null;
+          xmlHttp = new XMLHttpRequest();
+          xmlHttp.open( "GET", 'http://localhost:12345?Request=getLayers', false );
+          xmlHttp.send( null );
+   		 var json = JSON.parse(xmlHttp.responseText.toString())
+   		         var arrayLength = json.Layers.length;
+          for (var i = 0; i < arrayLength; i++) {
+          	var layername = json.Layers[i].name
+          	$('.leaflet-popup-content').append('<input id='+layername+' type="checkbox">'+layername).unbind('click').click(function(e){
+                getDataLayer(e.target.id,hdms.lat,hdms.lng)
+                map.closePopup()
+          	})
+
+          	$('.leaflet-popup-content').append('<br/>')
+          	$('.leaflet-popup-content').css("width","200px")
+
+          }
+
+
+
+            $('.leaflet-popup-content').append('<br/>')
+            $('.leaflet-popup-content').css("width","80px")
+  	}
+    </script>
+
+
+  	<script>
+    // zoom and center the map to given lat / lon
+		 var map = L.map('map').setView([52.381905,13.1199934], 13);
+
+		// add an OpenStreetMap tile layer
+		L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+		    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+		}).addTo(map);
+
+
+
+
+	map.on('click', function(e) {
+    // called if the map is clicked
+    	   popup = L.popup()
+              .setLatLng(e.latlng)
+              .setContent()
+              .openOn(map);
+
+              loadLayers(e.latlng)
+
+
+      
+	});
+
+  	</script>
+
+    <script src="js/jquery.min.js"></script>
+  </body>
+  </html>

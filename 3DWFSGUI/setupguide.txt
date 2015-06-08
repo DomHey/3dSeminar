@@ -1,0 +1,41 @@
+Setup:
+	Server:
+	- Libraries sind im repository einfach importieren in eclipse und kompilieren,
+	  es sind keine anderen Abhängigkeiten als die Libraries vorhanden
+	- Starten des Servers mit Startargumenten
+	  	bsp: 12345,jdbc:mysql://127.0.0.1:1337/test,root,pwd,twittercache,wfscache,customlayer
+	  	Port,Adresse zur Datenbank inklusive schema!,Benutzername der DB, Passwort der DB, Name des Twittercaches
+	  	in der Datenbank, Name des WfsCaches in der Datenbank, Name des WfsCaches in der Datenbank, Name des Caches
+	  	der die verfügbaren Layer speichert.
+
+	Java-Gui:
+	- Nur optional beigelegt da der Webservice dafür benutzt wird
+    
+    Web-Service
+    - getestet mit Tomcat 6.0
+    - 7.0 hat Fehler geworfen
+    - Tomcat installieren und die Datein in die angemessenen Verzeichnisse verschieben (eclipse macht das selbst)
+    - Starturl für WFS hinzufügen: http://localhost:8080/3DServerConfiguration/
+    - Datenbankverbindung muss angepasst werden in storeLayerInDatabase() in Configuration.java (Zeile 137)
+
+
+    Datenbank:
+    mysql: schemata der einzelen Datenbanken:
+    	   Layercache: LAYERNAME(pk)
+    	   			   URL
+    	   			   RESSOURCE
+    	   			   TYPE
+    	   			   CACHE
+    	   			   COORDTYPE
+    	   			   alles VARCHAR (100)
+    	   	Twittercache: id (bigint(20))
+    	   				  2D(varchar(10))
+    	   				  3D(varchar(10))
+    	   				  date(varchar(40))
+    	   				  twitterObject(longblob)
+    	   	wfscache: ressource(varchar(100))
+    	   			  2D(varchar(10))
+    	   		      3D(varchar(10))
+    	   		      content(longblob)		
+
+
