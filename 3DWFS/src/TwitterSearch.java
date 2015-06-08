@@ -40,10 +40,10 @@ public class TwitterSearch {
 		ConfigurationBuilder cb = new ConfigurationBuilder();
 		// aquire own keys and secrets by registering an app on your twitter account!
 		cb.setDebugEnabled(true)
-			.setOAuthConsumerKey("AVSHbIbj3CAV8dPWDcoIVawJ2")
-			.setOAuthConsumerSecret("xeEPxpkMCbVQC5xpkkFyOwcTYAs7Ca18ksy8AhSu4p8bEQ0Yi9")
-			.setOAuthAccessToken("2158688383-q0BanqGhuR24kQ0cDD91kvjSLWekfU3dqOEU5Va")
-			.setOAuthAccessTokenSecret("HxOR430m8mpcnvgoz2lIHgbuN8zZb44nVBRQzPVKZ5yZf");
+			.setOAuthConsumerKey("KEY")
+			.setOAuthConsumerSecret("CSecret")
+			.setOAuthAccessToken("AT")
+			.setOAuthAccessTokenSecret("TS");
 		
 		TwitterFactory tf = new TwitterFactory(cb.build());
 		// get twitter instance via auth keys
